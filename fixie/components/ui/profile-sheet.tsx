@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { CraftTool, Interest, Space, type Preferences } from "@/lib/scan/schema";
-import { EMPTY_PREFERENCES } from "@/hooks/use-preferences";
+import { CraftTool, EMPTY_PREFERENCES, Interest, Space, type Preferences } from "@/lib/scan/schema";
 import { Icon } from "./icon";
 
 interface ProfileSheetProps {
@@ -11,6 +10,8 @@ interface ProfileSheetProps {
   isFirstTime: boolean;
   onSave: (preferences: Preferences) => void;
   onDismiss: () => void;
+  /** Optional extras under the buttons, such as sign-in. */
+  footer?: React.ReactNode;
 }
 
 const SPACE_LABEL: Record<Space, string> = {
@@ -38,7 +39,13 @@ const TOOL_LABEL: Record<CraftTool, string> = {
  * "Tell the fairies about you": space, interests and tools, all optional and
  * choices only. A modal sheet; the caller makes the screen behind it inert.
  */
-export function ProfileSheet({ initial, isFirstTime, onSave, onDismiss }: ProfileSheetProps): React.JSX.Element {
+export function ProfileSheet({
+  initial,
+  isFirstTime,
+  onSave,
+  onDismiss,
+  footer,
+}: ProfileSheetProps): React.JSX.Element {
   const [draft, setDraft] = useState<Preferences>(initial ?? EMPTY_PREFERENCES);
   const headingId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -76,7 +83,7 @@ export function ProfileSheet({ initial, isFirstTime, onSave, onDismiss }: Profil
               Tell the fairies about you
             </h2>
             <p className="mt-1 text-[15px] text-ink-soft">
-              They&rsquo;ll pick projects that suit your space and the tools you have. It stays on this device.
+              They&rsquo;ll pick projects that suit your space and the tools you have. Your answers are saved on this device.
             </p>
           </header>
 
@@ -130,6 +137,7 @@ export function ProfileSheet({ initial, isFirstTime, onSave, onDismiss }: Profil
               {isFirstTime ? "Skip for now" : "Cancel"}
             </button>
           </div>
+          {footer}
         </form>
       </section>
     </div>

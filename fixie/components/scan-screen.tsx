@@ -4,9 +4,10 @@ import { useCallback, useEffect, useId, useState, useSyncExternalStore } from "r
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import { useCamera } from "@/hooks/use-camera";
 import { useLocation } from "@/hooks/use-location";
-import { EMPTY_PREFERENCES, usePreferences } from "@/hooks/use-preferences";
+import { useAccount } from "@/hooks/use-account";
+import { usePreferences } from "@/hooks/use-preferences";
 import { useScan, type ScanState } from "@/hooks/use-scan";
-import type { Preferences } from "@/lib/scan/schema";
+import { EMPTY_PREFERENCES, type Preferences } from "@/lib/scan/schema";
 import { captureFrame } from "@/lib/camera/capture-frame";
 import { loadImageFile } from "@/lib/camera/load-image";
 import { log } from "@/lib/log";
@@ -19,19 +20,24 @@ import { ResultCard, ResultHeading, ScanAgainButton } from "./result/result-card
 import { Icon } from "./ui/icon";
 import { InspectingOverlay } from "./ui/inspecting-overlay";
 import { LocationField } from "./ui/location-field";
+import { AccountSection } from "./ui/account-section";
+import { Notice } from "./ui/notice";
 import { Panel } from "./ui/panel";
 import { ProfileSheet } from "./ui/profile-sheet";
 import { TopBar } from "./ui/top-bar";
 
 interface ScanScreenProps {
   isDemo: boolean;
+  /** Set when Google sign-in came back with an error, so we can say so once. */
+  hasSignInFailed?: boolean;
 }
 
 /** Composes camera, scan and result. All data access lives in the hooks. */
-export function ScanScreen({ isDemo }: ScanScreenProps): React.JSX.Element {
+export function ScanScreen({ isDemo, hasSignInFailed = false }: ScanScreenProps): React.JSX.Element {
   const camera = useCamera();
   const { location, setLocation } = useLocation();
   const { preferences, setPreferences } = usePreferences();
+  const account = useAccount({ preferences, setPreferences, hasSignInFailed });
   const scanner = useScan({ isDemo, location, preferences });
   const isClient = useIsClient();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -52,12 +58,13 @@ export function ScanScreen({ isDemo }: ScanScreenProps): React.JSX.Element {
     setIsEditingProfile(false);
   }, [preferences, setPreferences]);
 
+  const { savePreferences } = account;
   const saveProfile = useCallback(
     (value: Preferences): void => {
-      setPreferences(value);
+      savePreferences(value);
       setIsEditingProfile(false);
     },
-    [setPreferences],
+    [savePreferences],
   );
   const editProfile = (): void => setIsEditingProfile(true);
 
@@ -184,8 +191,17 @@ export function ScanScreen({ isDemo }: ScanScreenProps): React.JSX.Element {
             isFirstTime={preferences === null}
             onSave={saveProfile}
             onDismiss={closeSheet}
+            footer={
+              <AccountSection
+                account={account.account}
+                onSignIn={() => void account.signIn()}
+                onSignOut={() => void account.signOut()}
+              />
+            }
           />
         )}
+
+        {account.notice && <Notice message={account.notice} onDismiss={account.dismissNotice} />}
 
         <p aria-live="polite" className="sr-only">
           {announcement(state)}

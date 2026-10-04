@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ScanResult, type Preferences } from "@/lib/scan/schema";
+import { ScanResult, isEmptyPreferences, type Preferences } from "@/lib/scan/schema";
 import { DEMO_RESULTS } from "@/lib/scan/demo-results";
 import { log } from "@/lib/log";
-import { isEmptyPreferences } from "./use-preferences";
 
 export type ScanState =
   | { status: "idle" }

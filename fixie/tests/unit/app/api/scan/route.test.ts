@@ -73,6 +73,18 @@ describe("POST /api/scan", () => {
     expect(mockAnalyze).not.toHaveBeenCalled();
   });
 
+  it("scans with no Supabase settings at all, since accounts are optional", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    mockAnalyze.mockReset();
+    mockAnalyze.mockResolvedValue(UNSURE_RESULT);
+    const response = await POST(
+      post({ image: "U1VQQQ", preferences: { space: null, interests: [], tools: [] } }, { isDemo: false }),
+    );
+    expect(response.status).toBe(200);
+    expect(mockAnalyze).toHaveBeenCalledTimes(1);
+  });
+
   it("calls the model when only a Gemini key is set", async () => {
     vi.stubEnv("ANTHROPIC_API_KEY", "");
     vi.stubEnv("GEMINI_API_KEY", "gemini-key");

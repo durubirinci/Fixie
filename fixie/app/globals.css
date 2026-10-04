@@ -56,6 +56,14 @@
   --device-bezel: #0c0c0e;
 
   /*
+   * Google's own colours for the "Sign in with Google" button (light theme).
+   * Their branding rules fix these, so they aren't part of the Fixie palette.
+   */
+  --google-surface: #ffffff;
+  --google-outline: #747775;
+  --google-text: #1f1f1f;
+
+  /*
    * Safe-area insets go through these so the desktop phone frame can fake a
    * Dynamic Island and home indicator. On real phones they are the device's.
    */
@@ -90,6 +98,9 @@
   --color-ember: var(--ember);
   --color-ember-soft: var(--ember-soft);
   --color-dewdrop: var(--dewdrop);
+  --color-google-surface: var(--google-surface);
+  --color-google-outline: var(--google-outline);
+  --color-google-text: var(--google-text);
 
   --color-fairy-glass: var(--fairy-glass);
   --color-fairy-paper: var(--fairy-paper);
@@ -107,6 +118,7 @@
 
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-dm-sans);
+  --font-google: var(--font-roboto);
 }
 
 html,

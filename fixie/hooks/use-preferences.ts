@@ -5,8 +5,6 @@ import { Preferences } from "@/lib/scan/schema";
 
 const STORAGE_KEY = "fixie.preferences";
 
-export const EMPTY_PREFERENCES: Preferences = { space: null, interests: [], tools: [] };
-
 const listeners = new Set<() => void>();
 // Fallback for when storage is blocked, so choices still hold for this visit.
 let memoryValue: string | null = null;
@@ -47,11 +45,6 @@ function parseStored(raw: string | null): Preferences | null {
     // Not JSON at all; same as no answer, and the sheet asks again.
     return null;
   }
-}
-
-/** True when the person skipped every question, so there's nothing to send. */
-export function isEmptyPreferences(preferences: Preferences): boolean {
-  return preferences.space === null && preferences.interests.length === 0 && preferences.tools.length === 0;
 }
 
 /**

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Fraunces } from "next/font/google";
+import { DM_Sans, Fraunces, Roboto } from "next/font/google";
 import { DeviceFrame } from "@/components/ui/device-frame";
 import "./globals.css";
 
@@ -14,6 +14,13 @@ const fraunces = Fraunces({
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+});
+
+// Google's branding rules set the "Sign in with Google" label in Roboto Medium.
+const roboto = Roboto({
+  variable: "--font-roboto",
+  weight: ["500"],
   subsets: ["latin"],
 });
 
@@ -36,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${dmSans.variable} ${roboto.variable} h-full antialiased`}
     >
       <body className="h-full font-sans">
         <DeviceFrame>{children}</DeviceFrame>

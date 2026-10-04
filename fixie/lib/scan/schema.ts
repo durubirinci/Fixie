@@ -34,6 +34,14 @@ export const Preferences = z.object({
 });
 export type Preferences = z.infer<typeof Preferences>;
 
+/** What a skipped "Tell the fairies about you" sheet saves. */
+export const EMPTY_PREFERENCES: Preferences = { space: null, interests: [], tools: [] };
+
+/** True when the person skipped every question, so there's nothing to send or sync. */
+export function isEmptyPreferences(preferences: Preferences): boolean {
+  return preferences.space === null && preferences.interests.length === 0 && preferences.tools.length === 0;
+}
+
 export const ScanRequest = z.object({
   image: z.string().min(1).max(MAX_IMAGE_BASE64_CHARS),
   location: z.string().trim().max(80).optional(),
