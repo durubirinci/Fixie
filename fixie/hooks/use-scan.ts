@@ -35,7 +35,7 @@ const MESSAGES = {
  * success | error. The response is validated against the shared schema, so
  * the UI never renders a shape it doesn't understand.
  */
-export function useScan({ isDemo = false }: { isDemo?: boolean } = {}): UseScan {
+export function useScan({ isDemo = false, location = "" }: { isDemo?: boolean; location?: string } = {}): UseScan {
   const [state, setState] = useState<ScanState>({ status: "idle" });
   const controllerRef = useRef<AbortController | null>(null);
   const lastImageRef = useRef<string | null>(null);
@@ -53,7 +53,7 @@ export function useScan({ isDemo = false }: { isDemo?: boolean } = {}): UseScan 
         const response = await fetch(`/api/scan${isDemo ? "?demo=1" : ""}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image }),
+          body: JSON.stringify({ image, location: location.trim() || undefined }),
           signal: controller.signal,
         });
 
@@ -85,7 +85,7 @@ export function useScan({ isDemo = false }: { isDemo?: boolean } = {}): UseScan 
         window.clearTimeout(timeout);
       }
     },
-    [isDemo],
+    [isDemo, location],
   );
 
   const retry = useCallback(async (): Promise<void> => {

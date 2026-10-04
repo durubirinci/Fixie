@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import { useCamera } from "@/hooks/use-camera";
+import { useLocation } from "@/hooks/use-location";
 import { useScan, type ScanState } from "@/hooks/use-scan";
 import { captureFrame } from "@/lib/camera/capture-frame";
 import { loadImageFile } from "@/lib/camera/load-image";
@@ -15,6 +16,7 @@ import { UploadButton } from "./camera/upload-button";
 import { ResultCard, ResultHeading, ScanAgainButton } from "./result/result-card";
 import { Icon } from "./ui/icon";
 import { InspectingOverlay } from "./ui/inspecting-overlay";
+import { LocationField } from "./ui/location-field";
 import { Panel } from "./ui/panel";
 import { TopBar } from "./ui/top-bar";
 
@@ -25,7 +27,8 @@ interface ScanScreenProps {
 /** Composes camera, scan and result. All data access lives in the hooks. */
 export function ScanScreen({ isDemo }: ScanScreenProps): React.JSX.Element {
   const camera = useCamera();
-  const scanner = useScan({ isDemo });
+  const { location, setLocation } = useLocation();
+  const scanner = useScan({ isDemo, location });
   const panelHeadingId = useId();
   const [captureError, setCaptureError] = useState<string | null>(null);
 
@@ -119,6 +122,8 @@ export function ScanScreen({ isDemo }: ScanScreenProps): React.JSX.Element {
                   onOpenCamera={() => void camera.start()}
                   onExample={scanner.showExample}
                   onFile={onFile}
+                  location={location}
+                  onLocationChange={setLocation}
                 />
               )}
             </div>
@@ -155,12 +160,16 @@ function Welcome({
   onOpenCamera,
   onExample,
   onFile,
+  location,
+  onLocationChange,
 }: {
   isResuming: boolean;
   isRequesting: boolean;
   onOpenCamera: () => void;
   onExample: () => void;
   onFile: (file: File) => void;
+  location: string;
+  onLocationChange: (value: string) => void;
 }): React.JSX.Element {
   return (
     <div className="flex flex-col items-center text-center">
@@ -195,6 +204,10 @@ function Welcome({
           <Icon name="sparkle" size={14} className="fill-glimmer text-honey-light" />
         </button>
         <UploadButton onFile={onFile} label="Upload a photo instead" />
+      </div>
+
+      <div className="mt-6 flex w-full justify-center">
+        <LocationField value={location} onChange={onLocationChange} />
       </div>
     </div>
   );

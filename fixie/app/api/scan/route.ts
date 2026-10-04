@@ -1,6 +1,7 @@
 import { analyzeItem } from "@/lib/scan/analyze";
 import { ScanRequest } from "@/lib/scan/schema";
 import { pickDemoResult } from "@/lib/scan/demo-results";
+import { cacheKey, getCached, setCached } from "@/lib/scan/cache";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { log } from "@/lib/log";
 
@@ -36,8 +37,17 @@ export async function POST(req: Request): Promise<Response> {
 
   const started = Date.now();
   try {
-    const result = await analyzeItem(parsed.data);
-    log.info("scan.completed", { status: result.status, fairy: result.fairy, isDemo, ms: Date.now() - started });
+    const key = cacheKey(parsed.data);
+    const cached = getCached(key);
+    const result = cached ?? (await analyzeItem(parsed.data));
+    if (!cached) setCached(key, result);
+    log.info("scan.completed", {
+      status: result.status,
+      fairy: result.fairy,
+      isDemo,
+      isCached: cached !== null,
+      ms: Date.now() - started,
+    });
     return Response.json(result);
   } catch (error) {
     // analyzeItem only throws on misconfiguration (e.g. missing API key).
