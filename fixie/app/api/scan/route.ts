@@ -3,6 +3,7 @@ import { ScanRequest } from "@/lib/scan/schema";
 import { pickDemoResult } from "@/lib/scan/demo-results";
 import { cacheKey, getCached, setCached } from "@/lib/scan/cache";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getScanProvider } from "@/lib/env";
 import { log } from "@/lib/log";
 
 export const runtime = "nodejs";
@@ -27,8 +28,8 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   // Demo mode never calls the model, so it survives venue Wi-Fi and a missing key.
-  // With no ANTHROPIC_API_KEY set, every scan is a demo scan, so the app runs for free.
-  const isDemo = new URL(req.url).searchParams.get("demo") === "1" || !process.env.ANTHROPIC_API_KEY;
+  // With no Claude or Gemini key set, every scan is a demo scan, so the app runs for free.
+  const isDemo = new URL(req.url).searchParams.get("demo") === "1" || getScanProvider() === "demo";
   if (isDemo) {
     const result = pickDemoResult(parsed.data.image);
     log.info("scan.completed", { status: result.status, isDemo });

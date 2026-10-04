@@ -73,6 +73,15 @@ describe("POST /api/scan", () => {
     expect(mockAnalyze).not.toHaveBeenCalled();
   });
 
+  it("calls the model when only a Gemini key is set", async () => {
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
+    vi.stubEnv("GEMINI_API_KEY", "gemini-key");
+    mockAnalyze.mockReset();
+    mockAnalyze.mockResolvedValue(UNSURE_RESULT);
+    await POST(post({ image: "R0VN" }, { isDemo: false }));
+    expect(mockAnalyze).toHaveBeenCalledTimes(1);
+  });
+
   it("returns the model's result for live requests", async () => {
     mockAnalyze.mockResolvedValue(UNSURE_RESULT);
     const response = await POST(post({ image: "QUJD" }, { isDemo: false }));

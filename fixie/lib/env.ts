@@ -36,6 +36,35 @@ export function getScanEnv(source: NodeJS.ProcessEnv = process.env): ScanEnv {
   };
 }
 
+// Gemini's free tier: a no-cost alternative to Claude for live scans.
+// An alias Google keeps pointed at its current Flash model, so the app
+// doesn't break when a versioned name is retired.
+export const DEFAULT_GEMINI_MODEL = "gemini-flash-latest";
+
+export interface GeminiEnv {
+  apiKey: string;
+  model: string;
+}
+
+/** Reads the Gemini key and model. Returns null when no key is set. */
+export function getGeminiEnv(source: NodeJS.ProcessEnv = process.env): GeminiEnv | null {
+  const apiKey = source.GEMINI_API_KEY?.trim();
+  if (!apiKey) return null;
+  return { apiKey, model: source.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL };
+}
+
+export type ScanProvider = "claude" | "gemini" | "demo";
+
+/**
+ * Which service answers live scans: Claude when its key is set, otherwise
+ * Gemini's free tier when that key is set, otherwise canned demo answers.
+ */
+export function getScanProvider(source: NodeJS.ProcessEnv = process.env): ScanProvider {
+  if (source.ANTHROPIC_API_KEY?.trim()) return "claude";
+  if (source.GEMINI_API_KEY?.trim()) return "gemini";
+  return "demo";
+}
+
 const RateLimitEnv = z.object({
   UPSTASH_REDIS_REST_URL: z.url(),
   UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
